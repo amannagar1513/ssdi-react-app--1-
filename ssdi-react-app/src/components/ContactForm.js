@@ -60,7 +60,7 @@ This inquiry was submitted through the SSDI Benefits website.
     `.trim();
     
     // Create mailto link
-    const mailtoLink = `mailto:nexuscores84@gmail.com?subject=${encodeURIComponent(emailSubject)}&body=${encodeURIComponent(emailBody)}`;
+    const mailtoLink = `mailto:support@nexuscoresync.com?subject=${encodeURIComponent(emailSubject)}&body=${encodeURIComponent(emailBody)}`;
     
     // Open email client
     window.location.href = mailtoLink;
