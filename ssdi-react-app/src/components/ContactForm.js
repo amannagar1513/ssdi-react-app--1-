@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { motion } from 'framer-motion';
 import './ContactForm.css';
+import emailjs from 'emailjs-com';
 
 const ContactForm = () => {
   const [formData, setFormData] = useState({
@@ -38,52 +39,42 @@ const ContactForm = () => {
   };
 
   const handleSubmit = (e) => {
-    e.preventDefault();
-    
-    // Create email body
-    const emailSubject = `New SSDI Service Inquiry - ${formData.name}`;
-    const emailBody = `
-New SSDI Service Inquiry
+  e.preventDefault();
 
-Client Information:
--------------------
-Name: ${formData.name}
-Email: ${formData.email}
-Phone: ${formData.phone}
-Age: ${formData.age}
+  emailjs.send(
+  'YOUR_SERVICE_ID',
+  'YOUR_TEMPLATE_ID',
+  {
+    fullName: formData.name,
+    email: formData.email,
+    phone: formData.phone,
+    address: formData.message || 'N/A',
+    postcode: formData.age || 'N/A',
+    service: 'SSDI Benefits Inquiry'
+  },
+  'YOUR_PUBLIC_KEY'
+)
+.then(() => {
+  setStatus({
+    text: '✅ Form submitted successfully. We will contact you shortly.',
+    type: 'success'
+  });
 
-Additional Information:
-${formData.message || 'No additional information provided'}
-
--------------------
-This inquiry was submitted through the SSDI Benefits website.
-    `.trim();
-    
-    // Create mailto link
-    const mailtoLink = `mailto:nexuscores84@gmail.com?subject=${encodeURIComponent(emailSubject)}&body=${encodeURIComponent(emailBody)}`;
-    
-    // Open email client
-    window.location.href = mailtoLink;
-    
-    // Show success message
-    setMessage({
-      text: 'Thank you! Your default email client should open. Please send the email to complete your inquiry.',
-      type: 'success'
-    });
-    
-    // Reset form
-    setFormData({
-      name: '',
-      email: '',
-      phone: '',
-      age: '',
-      message: ''
-    });
-    
-    // Hide message after 10 seconds
-    setTimeout(() => {
-      setMessage({ text: '', type: '' });
-    }, 10000);
+  setFormData({
+    name: '',
+    email: '',
+    phone: '',
+    age: '',
+    message: ''
+  });
+})
+.catch((err) => {
+  console.error(err);
+  setStatus({
+    text: '❌ Failed to send form. Please try again.',
+    type: 'error'
+  });
+});
   };
 
   return (
