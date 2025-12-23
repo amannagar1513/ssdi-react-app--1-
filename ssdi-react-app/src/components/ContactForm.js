@@ -46,8 +46,8 @@ const ContactForm = () => {
   setIsSubmitting(true);
 
  emailjs.send(
-  process.env.REACT_APP_EMAILJS_SERVICE_ID,
-  process.env.REACT_APP_EMAILJS_TEMPLATE_ID,
+  process.env.service_w9t1ffd,
+  process.env.template_zkuvo0m,
   {
     name: formData.name,
     email: formData.email,
@@ -57,7 +57,7 @@ const ContactForm = () => {
     employmentStatus: formData.employmentStatus,
     message: formData.message,
   },
-  process.env.REACT_APP_EMAILJS_PUBLIC_KEY
+  process.env.DDww6fjgz0X1sUXtz
 )
 
   .then(() => {
