@@ -45,20 +45,21 @@ const ContactForm = () => {
   e.preventDefault();
   setIsSubmitting(true);
 
-  emailjs.send(
-    'service_w9t1ffd',
-    'template_zkuvo0m',
-    {
-      name: formData.name,
-      email: formData.email,
-      phone: formData.phone,
-      age: formData.age,
-      disabilityType: formData.disabilityType,
-      employmentStatus: formData.employmentStatus,
-      message: formData.message,
-    },
-    'DDww6fjgz0X1sUXtz'
-  )
+ emailjs.send(
+  process.env.REACT_APP_EMAILJS_SERVICE_ID,
+  process.env.REACT_APP_EMAILJS_TEMPLATE_ID,
+  {
+    name: formData.name,
+    email: formData.email,
+    phone: formData.phone,
+    age: formData.age,
+    disabilityType: formData.disabilityType,
+    employmentStatus: formData.employmentStatus,
+    message: formData.message,
+  },
+  process.env.REACT_APP_EMAILJS_PUBLIC_KEY
+)
+
   .then(() => {
     setMessage({
       text: 'Thank you! Your inquiry was submitted successfully.',
