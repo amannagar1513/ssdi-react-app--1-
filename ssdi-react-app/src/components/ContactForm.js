@@ -3,6 +3,9 @@ import { motion, AnimatePresence } from 'framer-motion';
 import './ContactForm.css';
 import emailjs from '@emailjs/browser';
 
+// Initialize EmailJS (uses REACT_APP_ env variables defined in project root .env.local)
+emailjs.init(process.env.REACT_APP_EMAILJS_PUBLIC_KEY || '');
+
 const ContactForm = () => {
   const [formData, setFormData] = useState({
     name: '',
@@ -45,20 +48,20 @@ const ContactForm = () => {
   e.preventDefault();
   setIsSubmitting(true);
 
- emailjs.send(
-  process.env.service_w9t1ffd,
-  process.env.template_zkuvo0m,
-  {
-    name: formData.name,
-    email: formData.email,
-    phone: formData.phone,
-    age: formData.age,
-    disabilityType: formData.disabilityType,
-    employmentStatus: formData.employmentStatus,
-    message: formData.message,
-  },
-  process.env.DDww6fjgz0X1sUXtz
-)
+  emailjs.send(
+    process.env.REACT_APP_EMAILJS_SERVICE_ID,
+    process.env.REACT_APP_EMAILJS_TEMPLATE_ID,
+    {
+      name: formData.name,
+      email: formData.email,
+      phone: formData.phone,
+      age: formData.age,
+      disabilityType: formData.disabilityType,
+      employmentStatus: formData.employmentStatus,
+      message: formData.message,
+    },
+    process.env.REACT_APP_EMAILJS_PUBLIC_KEY
+  )
 
   .then(() => {
     setMessage({
