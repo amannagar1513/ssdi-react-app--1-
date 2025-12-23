@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import './ContactForm.css';
+import emailjs from '@emailjs/browser';
 
 const ContactForm = () => {
   const [formData, setFormData] = useState({
@@ -41,56 +42,54 @@ const ContactForm = () => {
   };
 
   const handleSubmit = (e) => {
-    e.preventDefault();
-    setIsSubmitting(true);
-    
-    const emailSubject = `New SSDI Service Inquiry - ${formData.name}`;
-    const emailBody = `
-New SSDI Service Inquiry
+  e.preventDefault();
+  setIsSubmitting(true);
 
-Client Information:
--------------------
-Name: ${formData.name}
-Email: ${formData.email}
-Phone: ${formData.phone}
-Age: ${formData.age}
-Disability Type: ${formData.disabilityType || 'Not specified'}
-Employment Status: ${formData.employmentStatus || 'Not specified'}
+  emailjs.send(
+    'service_w9t1ffd',
+    'template_zkuvo0m',
+    {
+      name: formData.name,
+      email: formData.email,
+      phone: formData.phone,
+      age: formData.age,
+      disabilityType: formData.disabilityType,
+      employmentStatus: formData.employmentStatus,
+      message: formData.message,
+    },
+    'DDww6fjgz0X1sUXtz'
+  )
+  .then(() => {
+    setMessage({
+      text: 'Thank you! Your inquiry was submitted successfully.',
+      type: 'success',
+    });
 
-Additional Information:
-${formData.message || 'No additional information provided'}
-
--------------------
-This inquiry was submitted through the SSDI Benefits website.
-    `.trim();
-    
-    const mailtoLink = `mailto:support@nexuscoresync.com?subject=${encodeURIComponent(emailSubject)}&body=${encodeURIComponent(emailBody)}`;
-    
+    setFormData({
+      name: '',
+      email: '',
+      phone: '',
+      age: '',
+      disabilityType: '',
+      employmentStatus: '',
+      message: '',
+    });
+  })
+  .catch((error) => {
+    console.error('EmailJS error:', error);
+    setMessage({
+      text: 'Something went wrong. Please try again later.',
+      type: 'error',
+    });
+  })
+  .finally(() => {
+    setIsSubmitting(false);
     setTimeout(() => {
-      window.location.href = mailtoLink;
-      
-      setMessage({
-        text: 'Thank you! Your email client should open shortly. Please send the email to complete your inquiry.',
-        type: 'success'
-      });
-      
-      setFormData({
-        name: '',
-        email: '',
-        phone: '',
-        age: '',
-        disabilityType: '',
-        employmentStatus: '',
-        message: ''
-      });
-      
-      setIsSubmitting(false);
-      
-      setTimeout(() => {
-        setMessage({ text: '', type: '' });
-      }, 10000);
-    }, 800);
-  };
+      setMessage({ text: '', type: '' });
+    }, 8000);
+  });
+};
+
 
   const benefits = [
     { icon: "clock", text: "Response within 24 hours" },
