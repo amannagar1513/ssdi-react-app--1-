@@ -3,8 +3,15 @@ import { motion, AnimatePresence } from 'framer-motion';
 import './ContactForm.css';
 import emailjs from '@emailjs/browser';
 
-// Initialize EmailJS (uses REACT_APP_ env variables defined in project root .env.local)
-emailjs.init(process.env.REACT_APP_EMAILJS_PUBLIC_KEY || '');
+// Read EmailJS config from env vars
+const EMAILJS_SERVICE_ID = process.env.REACT_APP_EMAILJS_SERVICE_ID;
+const EMAILJS_TEMPLATE_ID = process.env.REACT_APP_EMAILJS_TEMPLATE_ID;
+const EMAILJS_PUBLIC_KEY = process.env.REACT_APP_EMAILJS_PUBLIC_KEY;
+
+// Initialize EmailJS if public key is present
+if (EMAILJS_PUBLIC_KEY) {
+  emailjs.init(EMAILJS_PUBLIC_KEY);
+} 
 
 const ContactForm = () => {
   const [formData, setFormData] = useState({
@@ -48,9 +55,18 @@ const ContactForm = () => {
   e.preventDefault();
   setIsSubmitting(true);
 
+  // Validate EmailJS configuration
+  if (!EMAILJS_SERVICE_ID || !EMAILJS_TEMPLATE_ID || !EMAILJS_PUBLIC_KEY) {
+    console.error('EmailJS configuration missing', { EMAILJS_SERVICE_ID, EMAILJS_TEMPLATE_ID, EMAILJS_PUBLIC_KEY });
+    setMessage({ text: 'Email service is not configured. Please contact support.', type: 'error' });
+    setIsSubmitting(false);
+    setTimeout(() => { setMessage({ text: '', type: '' }); }, 8000);
+    return;
+  }
+
   emailjs.send(
-    process.env.REACT_APP_EMAILJS_SERVICE_ID,
-    process.env.REACT_APP_EMAILJS_TEMPLATE_ID,
+    EMAILJS_SERVICE_ID,
+    EMAILJS_TEMPLATE_ID,
     {
       name: formData.name,
       email: formData.email,
@@ -60,7 +76,7 @@ const ContactForm = () => {
       employmentStatus: formData.employmentStatus,
       message: formData.message,
     },
-    process.env.REACT_APP_EMAILJS_PUBLIC_KEY
+    EMAILJS_PUBLIC_KEY
   )
 
   .then(() => {
@@ -81,8 +97,9 @@ const ContactForm = () => {
   })
   .catch((error) => {
     console.error('EmailJS error:', error);
+    const errMsg = (error && (error.text || error.message)) ? (error.text || error.message) : null;
     setMessage({
-      text: 'Something went wrong. Please try again later.',
+      text: errMsg ? `Failed to send message: ${errMsg}` : 'Something went wrong. Please try again later.',
       type: 'error',
     });
   })
