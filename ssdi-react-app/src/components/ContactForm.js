@@ -1,19 +1,19 @@
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import './ContactForm.css';
 import emailjs from '@emailjs/browser';
 
-// Read EmailJS config from env vars
-const EMAILJS_SERVICE_ID = process.env.REACT_APP_EMAILJS_SERVICE_ID;
-const EMAILJS_TEMPLATE_ID = process.env.REACT_APP_EMAILJS_TEMPLATE_ID;
-const EMAILJS_PUBLIC_KEY = process.env.REACT_APP_EMAILJS_PUBLIC_KEY;
+// 🔥 HARDCODED EMAILJS (AS YOU REQUESTED)
+const EMAILJS_SERVICE_ID = 'service_w9t1ffd';
+const EMAILJS_TEMPLATE_ID = 'template_rdz63gj';
+const EMAILJS_PUBLIC_KEY = 'DDww6fjgz0X1sUXtz';
 
-// Initialize EmailJS if public key is present
-if (EMAILJS_PUBLIC_KEY) {
-  emailjs.init(EMAILJS_PUBLIC_KEY);
-} 
+// ❌ REMOVE emailjs.init() — DO NOT USE IT WITH sendForm
+
 
 const ContactForm = () => {
+  const formRef = useRef(null); // ✅ NEW
+
   const [formData, setFormData] = useState({
     name: '',
     email: '',
@@ -55,15 +55,6 @@ const ContactForm = () => {
   e.preventDefault();
   setIsSubmitting(true);
 
-  // Validate EmailJS configuration
-  if (!EMAILJS_SERVICE_ID || !EMAILJS_TEMPLATE_ID || !EMAILJS_PUBLIC_KEY) {
-    console.error('EmailJS configuration missing', { EMAILJS_SERVICE_ID, EMAILJS_TEMPLATE_ID, EMAILJS_PUBLIC_KEY });
-    setMessage({ text: 'Email service is not configured. Please contact support.', type: 'error' });
-    setIsSubmitting(false);
-    setTimeout(() => { setMessage({ text: '', type: '' }); }, 8000);
-    return;
-  }
-
   emailjs.send(
     EMAILJS_SERVICE_ID,
     EMAILJS_TEMPLATE_ID,
@@ -78,37 +69,33 @@ const ContactForm = () => {
     },
     EMAILJS_PUBLIC_KEY
   )
+    .then(() => {
+      setMessage({
+        text: 'Thank you! Your inquiry was submitted successfully.',
+        type: 'success',
+      });
 
-  .then(() => {
-    setMessage({
-      text: 'Thank you! Your inquiry was submitted successfully.',
-      type: 'success',
+      setFormData({
+        name: '',
+        email: '',
+        phone: '',
+        age: '',
+        disabilityType: '',
+        employmentStatus: '',
+        message: '',
+      });
+    })
+    .catch((error) => {
+      console.error('EmailJS error:', error);
+      setMessage({
+        text: 'Something went wrong. Please try again later.',
+        type: 'error',
+      });
+    })
+    .finally(() => {
+      setIsSubmitting(false);
+      setTimeout(() => setMessage({ text: '', type: '' }), 8000);
     });
-
-    setFormData({
-      name: '',
-      email: '',
-      phone: '',
-      age: '',
-      disabilityType: '',
-      employmentStatus: '',
-      message: '',
-    });
-  })
-  .catch((error) => {
-    console.error('EmailJS error:', error);
-    const errMsg = (error && (error.text || error.message)) ? (error.text || error.message) : null;
-    setMessage({
-      text: errMsg ? `Failed to send message: ${errMsg}` : 'Something went wrong. Please try again later.',
-      type: 'error',
-    });
-  })
-  .finally(() => {
-    setIsSubmitting(false);
-    setTimeout(() => {
-      setMessage({ text: '', type: '' });
-    }, 8000);
-  });
 };
 
 
@@ -214,7 +201,7 @@ const ContactForm = () => {
               <p>Fill out the form below and we'll get back to you shortly</p>
             </div>
 
-            <form className="ssdi-form" onSubmit={handleSubmit}>
+            <form ref={formRef} className="ssdi-form" onSubmit={handleSubmit}>
               <div className="form-row">
                 <div className={`form-group ${focusedField === 'name' ? 'focused' : ''} ${formData.name ? 'filled' : ''}`}>
                   <label htmlFor="name">
