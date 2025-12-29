@@ -5,7 +5,7 @@ import emailjs from '@emailjs/browser';
 
 // 🔥 HARDCODED EMAILJS (AS YOU REQUESTED)
 const EMAILJS_SERVICE_ID = 'service_w9t1ffd';
-const EMAILJS_TEMPLATE_ID = 'template_rdz63gj';
+const EMAILJS_TEMPLATE_ID = 'template_1p0t3ju';
 const EMAILJS_PUBLIC_KEY = 'DDww6fjgz0X1sUXtz';
 
 // ❌ REMOVE emailjs.init() — DO NOT USE IT WITH sendForm
@@ -55,6 +55,9 @@ const ContactForm = () => {
   e.preventDefault();
   setIsSubmitting(true);
 
+  // DEBUG: show payload being sent and IDs (remove in production or when resolved)
+  console.debug('EmailJS sending', { service: EMAILJS_SERVICE_ID, template: EMAILJS_TEMPLATE_ID, payload: formData });
+
   emailjs.send(
     EMAILJS_SERVICE_ID,
     EMAILJS_TEMPLATE_ID,
@@ -87,8 +90,13 @@ const ContactForm = () => {
     })
     .catch((error) => {
       console.error('EmailJS error:', error);
+
+      // Show helpful error detail in development; keep generic message in production
+      const isDev = !process.env.NODE_ENV || process.env.NODE_ENV === 'development';
+      const errText = (error && (error.text || error.message)) ? (error.text || error.message) : null;
+
       setMessage({
-        text: 'Something went wrong. Please try again later.',
+        text: isDev && errText ? `Error sending form: ${errText}` : 'Something went wrong. Please try again later.',
         type: 'error',
       });
     })
